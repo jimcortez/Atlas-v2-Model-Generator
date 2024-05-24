@@ -117,7 +117,6 @@ sys.stdout = orig_stdout
 f.close()
 
 totalLeds = sum(rings.values())
-print(totalLeds)
 
 
 # Get sorted ring numbers.
