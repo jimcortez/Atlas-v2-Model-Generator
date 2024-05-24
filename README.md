@@ -1,6 +1,8 @@
 # Atlas-v2-xmodel
 Code to create an xmodel file, and a corresponding csv file, for the Atlas v2 LED Sphere by DrZzs &amp; GrZzs
 
+Learn about the project here: https://www.youtube.com/watch?v=l0WGbmc9_4Q
+
 To use this script for your Atlas v2, you'll need to set the value for each ring in the "rings" dictionary to match the count of LEDs in your actual rings
 
 You can also adjust the number of ports from 16, if you use a controller with a different port count.
