@@ -12,5 +12,7 @@ The xmodel file can be loaded into xlights.
 In the CSV file you'll find corresponding values for the rings
 
 DC Start is indicating the start of a data channel, and the controller port.  (Connect the beginning signal port of this ring back to the controller port listed)
+
 PC Start is indicating the start of a power channel, and the controller port. (connect the beginning of this ring +/- back to the controller port listed)
+
 PC End is indicating the end of a power channel, and the controller port. (connect the end of this ring +/- back to the controller port)
