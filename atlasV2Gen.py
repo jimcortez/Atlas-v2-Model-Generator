@@ -205,7 +205,7 @@ sys.stdout = f
 print('<?xml version="1.0" encoding="UTF-8"?>')
 print('<custommodel ')
 
-startString = 'name="Atlas v2" parm1="1000" parm2="76" Depth="1" StringType="GRB Nodes" Transparency="0" PixelSize="2" ModelBrightness="0" Antialias="1" StrandNames="" NodeNames="" CustomModel="'
+startString = 'name="Atlas v2" parm1="1000" parm2="49" Depth="1" StringType="GRB Nodes" Transparency="0" PixelSize="2" ModelBrightness="0" Antialias="1" StrandNames="" NodeNames="" CustomModel="'
 endString = '" SourceVersion="2023.20"  >'
 
 print(startString + ";".join(sphere) + endString)
