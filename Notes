@@ -1,0 +1,45 @@
+Notes on building the Atlas v2
+
+For LEDs - WS2812 addressable LED strips. I was new to the LEDs so I asked for a quote.  Order 10m strips, it will save you a lot of soldering vs 1m strips!
+
+You have the option of Black or White, and ECO or regular.  I think the black looks slightly better, but white looks very similar. Side by side I couldn't tell a real difference between ECO or not.  So, for the savings, I'd go with Black ECO again.  Either way is up to you, though, there's no wrong choice!
+
+For printing the parts:
+Filament: I used PLA. You could use ASA or PETG, really whatever you want.
+Mix your build plates between big parts and small, to maximize efficiency.  (Print some of ring 1 with ring 25).
+
+I prefer the single piece vertical parts: https://discord.com/channels/469330414121517056/1200466297679532132/1202052941247430726
+
+Saves printing a few parts, including some of the couplers, and they're nice and rigid as a single piece.
+
+I made a small jig to drill two 6mm holes in each ring, just offset from a vertical support.  I drilled all of those holes, then attached the LED strip.  After I peeled a bit back on the end, and soldered the leads. Then passed the wires through the hole.
+
+Others choose to drill a hole per wire in each strip.
+
+Were I to do it again, I'd probably do a single 6.5mm hole in each strip.
+
+For wires I used bntechgo 3 pair, 20 gauge.  I used WAGO connectors to make wiring quickly, but you could solder direct between rows, or crimp on connectors.
+
+From the WAGO connectors back to the controller I used 16 gauge wire.
+
+So my Wiring looks like
+
+Controller + to 3 port WAGO  to + at start of LED string and end of LED string
+Controller Signal to 2 port WAGO to signal at start of LED string
+Controller - to 3 port WAGO to - at start of LED string and end of LED string
+
+For figuring out the LED strings, how to break up your rings into strings, generate a model, and the values for xlights, I wrote a python script: https://github.com/kraegar/Atlas-v2-xmodel/tree/main
+
+To use the script, you just have to count the LEDs per ring, and adjust in the script (it should even work if you have a different number of rings).  If your controller has a different number of ports, adjust that as well.
+
+For final assembly, I started by putting ring 24 on, hot gluing it in place, then 23, etc.
+
+I put ring 25 on the lower half, and put it in place after I'd glued ring 24.
+
+I labelled the ring in/out wires, so I didn't have to question what was what later.
+
+I pre-labelled wires to go from the WAGO connectors back to the controller.
+
+Every time I completed a section, I connected it back to the wires that would go to the controller.  I plugged in all the wires at the end.
+
+For support and chat, use the led-lighting-diy channel in the DrZzs discord, and chat in the "Questions about Atlas V2" Thread.
