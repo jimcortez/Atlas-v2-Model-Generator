@@ -18,3 +18,11 @@ DC Start is indicating the start of a data channel, and the controller port.  (C
 PC Start is indicating the start of a power channel, and the controller port. (connect the beginning of this ring +/- back to the controller port listed)
 
 PC End is indicating the end of a power channel, and the controller port. (connect the end of this ring +/- back to the controller port)
+
+This (terribly drawn) image shows how I did a single set of rings.  
+Blue -
+Red +
+Green Signal
+There are also the "inline" WAGO connectors, one per wire shown, between the pigtails of the connected rings.
+
+![image](https://github.com/user-attachments/assets/a5ddbd50-d67d-4f7e-bc08-59dbef7a361e)
