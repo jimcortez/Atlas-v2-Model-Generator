@@ -1,6 +1,7 @@
 import math
 import xml.etree.ElementTree as ET
 import csv
+import argparse
 
 # Model configuration
 RINGS = {
@@ -198,10 +199,17 @@ def write_csv(filename, rings, group_assignment, ports):
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Generate Atlas v2 xLights model and CSV files')
+    parser.add_argument('--xmodel', '-x', default='atlas_v2.xmodel',
+                       help='Output filename for xmodel file (default: atlas_v2.xmodel)')
+    parser.add_argument('--csv', '-c', default='atlas_v2.csv',
+                       help='Output filename for CSV file (default: atlas_v2.csv)')
+    args = parser.parse_args()
+    
     sphere = generate_sphere(RINGS, TOTAL_SIZE)
-    write_xml_model('atlas_v2.xmodel', sphere)
+    write_xml_model(args.xmodel, sphere)
     group_assignment = generate_group_assignment(RINGS, PORTS)
-    write_csv('atlas_v2.csv', RINGS, group_assignment, PORTS)
+    write_csv(args.csv, RINGS, group_assignment, PORTS)
 
 
 if __name__ == '__main__':

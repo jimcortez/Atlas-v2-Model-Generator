@@ -1,30 +1,112 @@
-# Atlas-v2-xmodel
-Code to create an xmodel file, and a corresponding csv file, for the Atlas v2 LED Sphere by DrZzs &amp; GrZzs
+# Atlas v2 LED Sphere - xLights Model Generator
 
-Learn about the project here: https://www.youtube.com/watch?v=l0WGbmc9_4Q
+A Python script to generate xLights model files and CSV configuration for the Atlas v2 LED Sphere by DrZzs & GrZzs.
 
-To use this script for your Atlas v2, you'll need to set the value for each ring in the "rings" dictionary to match the count of LEDs in your actual rings
+This code is based on the work of https://github.com/kraegar/Atlas-v2-xmodel
 
-You can also adjust the number of ports from 16, if you use a controller with a different port count.
+## Overview
 
-Running the script will then generate an .xmodel file, and a csv file.
+This tool creates:
+- An `.xmodel` file that can be imported into xLights
+- A CSV file with ring and group assignment information
 
-The xmodel file can be loaded into xlights.
+## Prerequisites
 
-In the CSV file you'll find corresponding values for the rings
+- Python 3.6 or higher
+- No external dependencies required (uses only built-in Python libraries)
 
-DC Start is indicating the start of a data channel, and the controller port.  (Connect the beginning signal port of this ring back to the controller port listed)
+## Installation
 
-PC Start is indicating the start of a power channel, and the controller port. (connect the beginning of this ring +/- back to the controller port listed)
+1. Clone this repository:
+   ```bash
+   git clone git@github.com:jimcortez/Atlas-v2-xmodel.git
+   cd Atlas-v2-xmodel
+   ```
 
-PC End is indicating the end of a power channel, and the controller port. (connect the end of this ring +/- back to the controller port)
+## Configuration
 
-This (terribly drawn) image shows how I did a single set of rings.  
+### LED Ring Configuration
 
-* Blue -
-* Red +
-* Green Signal
+Before running the script, you need to configure the LED counts for each ring. Edit the `RINGS` dictionary in `atlasV2Gen.py`:
 
-There are also the "inline" WAGO connectors, one per wire shown, between the pigtails of the connected rings, not shown in the drawing.
+```python
+RINGS = {
+    1: 33,   # Ring 1 has 33 LEDs
+    2: 55,   # Ring 2 has 55 LEDs
+    # ... continue for all 49 rings
+    49: 33   # Ring 49 has 33 LEDs
+}
+```
 
-![image](https://github.com/user-attachments/assets/a5ddbd50-d67d-4f7e-bc08-59dbef7a361e)
+### Controller Ports
+
+You can adjust the number of controller ports by modifying the `PORTS` constant:
+
+```python
+PORTS = 16  # Change this to match your controller
+```
+
+## Usage
+
+### Basic Usage
+
+Run the main script with default filenames:
+
+```bash
+python atlasV2Gen.py
+```
+
+This will generate:
+- `atlas_v2.xmodel` - The xLights model file
+- `atlas_v2.csv` - Configuration data for ring assignments
+
+### Command Line Options
+
+You can specify custom output filenames using command line arguments:
+
+```bash
+# Specify custom filenames
+python atlasV2Gen.py --xmodel my_model.xmodel --csv my_data.csv
+
+# Use short options
+python atlasV2Gen.py -x my_model.xmodel -c my_data.csv
+
+# Mix and match
+python atlasV2Gen.py --xmodel custom.xmodel -c custom.csv
+```
+
+### Available Arguments
+
+- `--xmodel`, `-x`: Output filename for xmodel file (default: `atlas_v2.xmodel`)
+- `--csv`, `-c`: Output filename for CSV file (default: `atlas_v2.csv`)
+- `--help`, `-h`: Show help message and exit
+
+### Examples
+
+```bash
+# Generate files with descriptive names
+python atlasV2Gen.py --xmodel atlas_v2_sphere.xmodel --csv atlas_v2_config.csv
+
+# Generate only xmodel with custom name
+python atlasV2Gen.py -x my_sphere.xmodel
+
+# Generate only CSV with custom name
+python atlasV2Gen.py -c my_config.csv
+```
+
+## Output Files
+
+### xmodel File
+The generated `.xmodel` file can be imported directly into xLights to create your Atlas v2 sphere model.
+
+### CSV File
+The CSV file contains detailed information about each ring including:
+- Ring number
+- LED start/end positions
+- Data channel assignments
+- Power channel assignments
+
+## Project Information
+
+Learn more about the Atlas v2 LED Sphere project: [YouTube Video](https://www.youtube.com/watch?v=l0WGbmc9_4Q)
+
