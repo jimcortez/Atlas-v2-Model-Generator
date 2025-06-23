@@ -1,0 +1,88 @@
+# Atlas v2 LED Sphere Configuration
+# Configuration for generating LED sphere models for various animation software
+
+model:
+  name: "Atlas v2"
+  version: "2.0"
+  description: "LED Sphere by DrZzs & GrZzs"
+  
+# LED Ring Configuration
+# Each ring is defined by its number and the count of LEDs in that ring
+rings:
+  1: 33
+  2: 55
+  3: 70
+  4: 82
+  5: 92
+  6: 100
+  7: 108
+  8: 114
+  9: 120
+  10: 126
+  11: 139
+  12: 134
+  13: 137
+  14: 141
+  15: 144
+  16: 147
+  17: 149
+  18: 152
+  19: 155
+  20: 155
+  21: 156
+  22: 158
+  23: 159
+  24: 159
+  25: 159
+  26: 159
+  27: 158
+  28: 157
+  29: 156
+  30: 155
+  31: 154
+  32: 152
+  33: 148
+  34: 148
+  35: 144
+  36: 141
+  37: 138
+  38: 134
+  39: 130
+  40: 125
+  41: 120
+  42: 114
+  43: 108
+  44: 100
+  45: 92
+  46: 82
+  47: 71
+  48: 56
+  49: 33
+
+# Controller Configuration
+controller:
+  ports: 16
+  total_size: 1000
+
+# Sphere Geometry Configuration
+geometry:
+  sphere_radius: 100.0
+  coordinate_system: "spherical"
+
+# MadMapper Configuration
+madmapper:
+  grid_resolution: 100  # Size of the grid (width x height)
+  dmx_start_channel: 1  # Starting DMX channel for the first LED
+
+# Output Configuration
+output:
+  default_prefix: "atlas_v2"
+  formats:
+    xlights:
+      enabled: true
+      extension: ".xmodel"
+      filename: "atlas_v2.xmodel"
+    madmapper:
+      enabled: true
+      extension: ".mmfl"
+      filename: "atlas_v2.mmfl" 

@@ -1,5 +1,8 @@
-atlas_v2.csv
-atlas_v2.xmodel
+*.csv
+*.xmodel
+*.json
+*.mmfl
+.vscode
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
