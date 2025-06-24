@@ -8,6 +8,7 @@ from typing import Dict, List, Type
 from .base_generator import BaseGenerator
 from .xlights_generator import XLightsGenerator
 from .madmapper_generator import MadMapperGenerator
+from .xlights3d_generator import XLights3DGenerator
 
 
 class GeneratorFactory:
@@ -16,6 +17,7 @@ class GeneratorFactory:
     _generators: Dict[str, Type[BaseGenerator]] = {
         'xlights': XLightsGenerator,
         'madmapper': MadMapperGenerator,
+        'xlights3d': XLights3DGenerator,
     }
     
     @classmethod

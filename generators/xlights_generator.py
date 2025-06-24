@@ -228,5 +228,5 @@ class XLightsGenerator(BaseGenerator):
             return True
             
         except Exception as e:
-            print(f"Error generating xLights model: {e}")
+            print(f"Error generating xLights model files (.xmodel, .csv, _coordinates.json): {e}")
             return False 

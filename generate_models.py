@@ -126,7 +126,7 @@ def generate_models(config: Dict[str, Any], output_dir: str = ".",
     success_count = 0
     total_count = len(formats)
     
-    print(f"Generating models for {total_count} format(s): {', '.join(formats)}")
+    print(f"Generating LED sphere models for {total_count} format(s): {', '.join(formats)}")
     print(f"Output directory: {output_path.absolute()}")
     print(f"Output prefix: {prefix}")
     print()
@@ -143,16 +143,33 @@ def generate_models(config: Dict[str, Any], output_dir: str = ".",
             success = generator.generate(str(output_file))
             
             if success:
-                print(f"  ✓ Successfully generated {format_name} model")
+                # Get the actual files that were generated
+                file_extensions = []
+                if format_name == "xlights":
+                    file_extensions = [".xmodel", ".csv", "_coordinates.json"]
+                elif format_name == "xlights3d":
+                    file_extensions = ["_3d.xmodel", "_3d.csv", "_3d_coordinates.json"]
+                elif format_name == "madmapper":
+                    file_extensions = [".mmfl"]
+                
+                generated_files = [f"{prefix}{ext}" for ext in file_extensions]
+                print(f"  ✓ Successfully generated {format_name} model files:")
+                for file in generated_files:
+                    print(f"    - {file}")
                 success_count += 1
             else:
-                print(f"  ✗ Failed to generate {format_name} model")
+                print(f"  ✗ Failed to generate {format_name} model files")
                 
         except Exception as e:
             print(f"  ✗ Error generating {format_name} model: {e}")
     
     print()
-    print(f"Generation complete: {success_count}/{total_count} formats successful")
+    if success_count == total_count:
+        print(f"✓ Generation completed successfully: {success_count}/{total_count} formats")
+        print("  All model files are ready for use in their respective applications.")
+    else:
+        print(f"⚠ Generation completed with issues: {success_count}/{total_count} formats successful")
+        print("  Please check the error messages above for details.")
     
     return success_count == total_count
 
@@ -212,7 +229,7 @@ Examples:
     
     # List available formats if requested
     if args.list_formats:
-        print("Available formats:")
+        print("Available LED sphere model formats:")
         for format_name in get_available_formats():
             print(f"  - {format_name}")
         return 0
@@ -223,8 +240,11 @@ Examples:
         config = load_config(args.config)
         
         if not validate_config(config):
-            print("Configuration validation failed")
+            print("Configuration validation failed. Please check your config file.")
             return 1
+        
+        print("Configuration loaded and validated successfully.")
+        print()
         
         # Generate models
         success = generate_models(
@@ -236,8 +256,13 @@ Examples:
         
         return 0 if success else 1
         
+    except FileNotFoundError:
+        print(f"Error: Configuration file '{args.config}' not found.")
+        print("Please ensure the file exists or specify a different path with --config.")
+        return 1
     except Exception as e:
         print(f"Error: {e}")
+        print("Please check your configuration and try again.")
         return 1
 
 

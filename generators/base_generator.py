@@ -42,9 +42,14 @@ class BaseGenerator(ABC):
         """
         Calculate 3D coordinates for an LED on a spherical surface.
         Uses spherical coordinates converted to Cartesian.
+        
+        The sphere is oriented with:
+        - Z-axis: vertical (poles at top/bottom)
+        - X-Y plane: horizontal (equator)
+        - Rings: horizontal circles at different latitudes
         """
-        # Ring angle (latitude) - rings are horizontal circles
-        ring_angle = (ring_num - 1) * math.pi / (len(self.rings) - 1)  # 0 to pi
+        # Use the full latitude range from -pi/2 to +pi/2
+        ring_angle = ((ring_num - 1) / (len(self.rings) - 1) - 0.5) * math.pi
         
         # Position angle (longitude) within the ring
         if leds_in_ring > 1:
@@ -53,9 +58,12 @@ class BaseGenerator(ABC):
             position_angle = 0
             
         # Convert spherical to Cartesian coordinates
-        x = self.sphere_radius * math.sin(ring_angle) * math.cos(position_angle)
-        y = self.sphere_radius * math.sin(ring_angle) * math.sin(position_angle)
-        z = self.sphere_radius * math.cos(ring_angle)
+        # x = r * cos(lat) * cos(lon)
+        # y = r * cos(lat) * sin(lon)  
+        # z = r * sin(lat)
+        x = self.sphere_radius * math.cos(ring_angle) * math.cos(position_angle)
+        y = self.sphere_radius * math.cos(ring_angle) * math.sin(position_angle)
+        z = self.sphere_radius * math.sin(ring_angle)
         
         return x, y, z
     

@@ -69,10 +69,6 @@ class MadMapperGenerator(BaseGenerator):
             # Calculate DMX channel number (each pixel uses 3 channels: RGB)
             dmx_channel = self.dmx_start_channel + (led.led_number - 1) * 3
             
-            # Debug: Print first few LEDs to verify numbering
-            if led.led_number <= 5:
-                print(f"  LED {led.led_number} (Ring {led.ring_number}, Pos {pos_in_ring}) -> Channel {dmx_channel} at grid_x={grid_x}")
-            
             # Place LED in grid
             mapping[ring_idx][grid_x] = dmx_channel
         
@@ -168,14 +164,8 @@ class MadMapperGenerator(BaseGenerator):
             mmfl_path = f"{output_path}.mmfl"
             self.write_madmapper_file(mmfl_path, [sphere_fixture])
             
-            print(f"  Generated MadMapper fixture: {mmfl_path}")
-            print(f"  Grid dimensions: {len(mapping)} rings x {len(mapping[0]) if mapping else 0} width")
-            print(f"  DMX start channel: {self.dmx_start_channel}")
-            print(f"  Total LEDs: {len(self.led_positions)}")
-            print(f"  Total DMX channels: {len(self.led_positions) * 3}")
-            
             return True
             
         except Exception as e:
-            print(f"Error generating MadMapper model: {e}")
+            print(f"Error generating MadMapper fixture file (.mmfl): {e}")
             return False 

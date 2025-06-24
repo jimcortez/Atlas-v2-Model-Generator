@@ -17,7 +17,8 @@ python generate_models.py
 ```
 
 This generates all enabled formats from `config.yaml`. By default, you'll get:
-- `atlas_v2.xmodel` - For xLights
+- `atlas_v2.xmodel` - For xLights (2D)
+- `atlas_v2_3d.xmodel` - For xLights (3D with ring submodels)
 - `atlas_v2.mmfl` - For MadMapper
 - `atlas_v2.csv` - String configuration data
 - `atlas_v2_coordinates.json` - 3D LED coordinates
@@ -25,6 +26,7 @@ This generates all enabled formats from `config.yaml`. By default, you'll get:
 ### 3. Generate Specific Formats
 ```bash
 python generate_models.py --formats xlights
+python generate_models.py --formats xlights3d
 python generate_models.py --formats madmapper
 ```
 
@@ -72,6 +74,25 @@ Using the values from your generated CSV file, set the start position for each s
 - Verify the total number of strings matches your PORTS setting
 - Test the model by creating a simple effect to ensure all LEDs respond correctly
 
+### Using the 3D xmodel in xLights
+
+The 3D model (`atlas_v2_3d.xmodel`) provides enhanced 3D visualization with ring submodels:
+
+#### 1. Import the 3D Model
+- Follow the same import process as the 2D model
+- The 3D model will appear with proper 3D positioning in the layout view
+
+#### 2. 3D Model Features
+- **Ring Submodels**: Each ring is a separate submodel for better organization
+- **3D Coordinates**: All LEDs have proper 3D coordinates for realistic visualization
+- **Spherical Distribution**: Rings are positioned to form a true sphere shape
+- **Individual Ring Control**: You can select and manipulate individual rings
+
+#### 3. 3D Model Configuration
+- The 3D model uses the same controller settings as the 2D model
+- Ring spacing and positioning are controlled via the `xlights3d` configuration section
+- Each ring maintains its LED numbering and controller assignments
+
 ### Using the mmfl in MadMapper
 
 1. Open MadMapper and go to the **LED Fixture Library**
@@ -113,11 +134,19 @@ madmapper:
   grid_resolution: 100  # Grid size for projection
   dmx_start_channel: 1  # Starting DMX channel
 
+# xLights 3D Settings
+xlights3d:
+  ring_spacing: 2.0      # Spacing between rings in 3D space
+  ring_radius: 100.0     # Base radius for ring calculations
+  vertical_spacing: 2.0  # Vertical spacing between rings
+
 # Output Settings
 output:
   default_prefix: "atlas_v2"
   formats:
     xlights:
+      enabled: true
+    xlights3d:
       enabled: true
     madmapper:
       enabled: true
@@ -125,105 +154,9 @@ output:
 
 ---
 
-## 🛠️ Developer Information
+## 🧑‍💻 Developer Documentation
 
-### Project Structure
-```
-Atlas-v2-xmodel/
-├── config.yaml                # Configuration data
-├── generate_models.py         # Main entry point
-├── generators/                # Format generators
-│   ├── __init__.py           # Generator factory
-│   ├── base_generator.py     # Abstract base class
-│   ├── xlights_generator.py  # xLights format
-│   └── madmapper_generator.py # MadMapper format
-└── ... (output files)
-```
-
-### Adding New Formats
-
-1. **Create Generator Class**
-   ```python
-   # generators/myformat_generator.py
-   from .base_generator import BaseGenerator
-   
-   class MyFormatGenerator(BaseGenerator):
-       def get_format_name(self) -> str:
-           return "MyFormat"
-       
-       def get_file_extension(self) -> str:
-           return ".myf"
-       
-       def generate(self, output_path: str) -> bool:
-           # Your generation logic here
-           pass
-   ```
-
-2. **Register in Factory**
-   ```python
-   # generators/__init__.py
-   from .myformat_generator import MyFormatGenerator
-   
-   _generators = {
-       'xlights': XLightsGenerator,
-       'madmapper': MadMapperGenerator,
-       'myformat': MyFormatGenerator,  # Add this line
-   }
-   ```
-
-3. **Add to Config**
-   ```yaml
-   # config.yaml
-   output:
-     formats:
-       myformat:
-         enabled: true
-         extension: ".myf"
-         filename: "atlas_v2.myf"
-   ```
-
-### Available Commands
-
-```bash
-# List available formats
-python generate_models.py --list-formats
-
-# Generate with custom settings
-python generate_models.py --formats xlights,madmapper --output-dir ./output --prefix custom
-```
-
-### Architecture
-
-- **BaseGenerator**: Abstract base class with common LED positioning logic
-- **GeneratorFactory**: Factory pattern for creating format-specific generators
-- **YAML Configuration**: Centralized configuration for all settings
-- **Modular Design**: Easy to add new formats without modifying existing code
-
----
-
-## 📁 Output Files
-
-| Format | Extension | Description |
-|--------|-----------|-------------|
-| xLights | `.xmodel` | xLights model file for Layout tab |
-| MadMapper | `.mmfl` | MadMapper LED fixture library file |
-| CSV | `.csv` | String configuration and group assignments |
-| JSON | `.json` | 3D coordinates for all LEDs |
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Add your new format generator
-4. Update documentation
-5. Submit a pull request
-
----
-
-## 📄 License & Credits
-
-- Based on the work of https://github.com/kraegar/Atlas-v2-xmodel
-- Modular rewrite with support for multiple animation software platforms
+- **[Developer Guide](docs/developer-guide.md)** - Project structure, extending the generator, and advanced usage
+- **[AI Guide](docs/ai_guide.md)** - Prompts used to create this codebase and templates for AI-assisted development
+- **[Output Format Documentation](docs/output_formats/)** - Detailed specifications for generated file formats (xLights xmodel, xLights 3D xmodel, MadMapper mmfl)
 
