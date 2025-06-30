@@ -85,59 +85,119 @@ class BaseGenerator(ABC):
                 self.led_positions.append(led_pos)
                 led_number += 1
     
+    def partition_list(self, a: List[int], k: int) -> List[List[int]]:
+        """
+        Partitions a list of numbers into equal groupings by sum
+        This is the exact algorithm from the original Atlas v2 code
+        
+        Args:
+            a: the list to partition
+            k: the number of partitions
+        """
+        #check degenerate conditions
+        if k <= 1: return [a]
+        if k >= len(a): return [[x] for x in a]
+        #create a list of indexes to partition between, using the index on the
+        #left of the partition to indicate where to partition
+        #to start, roughly partition the array into equal groups of len(a)/k (note
+        #that the last group may be a different size) 
+        partition_between = []
+        for i in range(k-1):
+            partition_between.append((i+1)*len(a)//k)  # Note I did change the code to // to avoid floats
+        #the ideal size for all partitions is the total height of the list divided
+        #by the number of paritions
+        average_height = float(sum(a))/k
+        best_score = None
+        best_partitions: List[List[int]] = []
+        count = 0
+        no_improvements_count = 0
+        #loop over possible partitionings
+        while True:
+            #partition the list
+            partitions = []
+            index = 0
+            for div in partition_between:
+                #create partitions based on partition_between
+                partitions.append(a[index:div])
+                index = div
+            #append the last partition, which runs from the last partition divider
+            #to the end of the list
+            partitions.append(a[index:])
+            #evaluate the partitioning
+            worst_height_diff = 0
+            worst_partition_index = -1
+            for p in partitions:
+                #compare the partition height to the ideal partition height
+                height_diff = average_height - sum(p)
+                #if it's the worst partition we've seen, update the variables that
+                #track that
+                if abs(height_diff) > abs(worst_height_diff):
+                    worst_height_diff = height_diff
+                    worst_partition_index = partitions.index(p)
+            #if the worst partition from this run is still better than anything
+            #we saw in previous iterations, update our best-ever variables
+            if best_score is None or abs(worst_height_diff) < best_score:
+                best_score = abs(worst_height_diff)
+                best_partitions = partitions
+                no_improvements_count = 0
+            else:
+                no_improvements_count += 1
+            #decide if we're done: if all our partition heights are ideal, or if
+            #we haven't seen improvement in >5 iterations, or we've tried 100
+            #different partitionings
+            #the criteria to exit are important for getting a good result with
+            #complex data, and changing them is a good way to experiment with getting
+            #improved results
+            if worst_height_diff == 0 or no_improvements_count > 10 or count > 100:
+                return best_partitions
+            count += 1
+            #adjust the partitioning of the worst partition to move it closer to the
+            #ideal size. the overall goal is to take the worst partition and adjust
+            #its size to try and make its height closer to the ideal. generally, if
+            #the worst partition is too big, we want to shrink the worst partition
+            #by moving one of its ends into the smaller of the two neighboring
+            #partitions. if the worst partition is too small, we want to grow the
+            #partition by expanding the partition towards the larger of the two
+            #neighboring partitions
+            if worst_partition_index == 0:   #the worst partition is the first one
+                if worst_height_diff < 0: partition_between[0] -= 1   #partition too big, so make it smaller
+                else: partition_between[0] += 1   #partition too small, so make it bigger
+            elif worst_partition_index == len(partitions)-1: #the worst partition is the last one
+                if worst_height_diff < 0: partition_between[-1] += 1   #partition too small, so make it bigger
+                else: partition_between[-1] -= 1   #partition too big, so make it smaller
+            else:   #the worst partition is in the middle somewhere
+                left_bound = worst_partition_index - 1   #the divider before the partition
+                right_bound = worst_partition_index   #the divider after the partition
+                if worst_height_diff < 0:   #partition too big, so make it smaller
+                    if sum(partitions[worst_partition_index-1]) > sum(partitions[worst_partition_index+1]):   #the partition on the left is bigger than the one on the right, so make the one on the right bigger
+                        partition_between[right_bound] -= 1
+                    else:   #the partition on the left is smaller than the one on the right, so make the one on the left bigger
+                        partition_between[left_bound] += 1
+                else:   #partition too small, make it bigger
+                    if sum(partitions[worst_partition_index-1]) > sum(partitions[worst_partition_index+1]): #the partition on the left is bigger than the one on the right, so make the one on the left smaller
+                        partition_between[left_bound] -= 1
+                    else:   #the partition on the left is smaller than the one on the right, so make the one on the right smaller
+                        partition_between[right_bound] += 1
+
     def generate_group_assignment_improved(self) -> Dict[int, int]:
         """
-        Improved group assignment using dynamic programming for better balance.
+        Generate group assignment using the exact partitioning algorithm from Atlas v2.
         """
-        ring_values = list(self.rings.values())
-        n_rings = len(ring_values)
+        # Get the ring values in order
+        ring_values = [self.rings[ring_num] for ring_num in sorted(self.rings.keys())]
         
-        # Dynamic programming approach for optimal partitioning
-        dp = [[float('inf')] * (self.ports + 1) for _ in range(n_rings + 1)]
-        partition = [[0] * (self.ports + 1) for _ in range(n_rings + 1)]
+        # Use the original Atlas v2 partitioning algorithm
+        groups: List[List[int]] = self.partition_list(ring_values, self.ports)
         
-        # Base case: 0 rings can be assigned to any number of ports
-        for j in range(self.ports + 1):
-            dp[0][j] = 0
-        
-        # Fill dp table
-        for i in range(1, n_rings + 1):
-            for j in range(1, self.ports + 1):
-                if j == 1:
-                    # All rings in one group
-                    dp[i][j] = sum(ring_values[:i])
-                    partition[i][j] = 0
-                else:
-                    # Try different partition points
-                    for k in range(i):
-                        current_sum = sum(ring_values[k:i])
-                        max_sum = max(dp[k][j-1], current_sum)
-                        if max_sum < dp[i][j]:
-                            dp[i][j] = max_sum
-                            partition[i][j] = k
-        
-        # Reconstruct the assignment
+        # Create group assignment mapping
         group_assignment = {}
-        self._reconstruct_assignment(partition, n_rings, self.ports, group_assignment, 1)
+        ring = 1
+        for group_idx, group in enumerate(groups, 1):  # 1-based indexing
+            for ring_num in group:
+                group_assignment[ring] = group_idx
+                ring = ring + 1
         
         return group_assignment
-    
-    def _reconstruct_assignment(self, partition, i, j, assignment, group_id):
-        """Helper method to reconstruct group assignment from DP table"""
-        if i == 0 or j == 0:
-            return
-        
-        k = partition[i][j]
-        if j == 1:
-            # All remaining rings go to current group
-            for ring_idx in range(1, i + 1):
-                assignment[ring_idx] = group_id
-        else:
-            # Assign rings from k+1 to i to current group
-            for ring_idx in range(k + 1, i + 1):
-                assignment[ring_idx] = group_id
-            # Recursively assign remaining rings
-            self._reconstruct_assignment(partition, k, j - 1, assignment, group_id + 1)
     
     @abstractmethod
     def generate(self, output_path: str) -> bool:

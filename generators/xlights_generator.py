@@ -109,6 +109,7 @@ class XLightsGenerator(BaseGenerator):
     def write_csv_enhanced(self, filename: str, group_assignment: Dict[int, int]):
         """
         Write enhanced CSV output with additional coordinate information.
+        Uses the exact logic from the original Atlas v2 code for group assignment.
         """
         headers = [
             "Ring", "LED Start", "LED End", "LEDs Per Ring",
@@ -116,19 +117,25 @@ class XLightsGenerator(BaseGenerator):
             "PC Start", "PC End", "Avg X", "Avg Y", "Avg Z"
         ]
         
+        # Debug: Print group assignment
+        # print("Group assignment:")
+        # for ring_num in sorted(self.rings.keys()):
+        #     print(f"Ring {ring_num}: Group {group_assignment[ring_num]}")
+        
         with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(headers)
             
-            led_start = 1
-            current_group = 1
-            group_start = True
-            group_led_total = 0
-            dc_end_total = 0
+            led = 1
+            group = 1
+            groupStart = True
+            groupStartLED = 1
+            groupTotal = 0
+            dcEndTotal = 0
             
             for ring_num in sorted(self.rings.keys()):
                 leds_in_ring = self.rings[ring_num]
-                led_end = led_start + leds_in_ring - 1
+                led_end = led + leds_in_ring - 1
                 
                 # Calculate average coordinates for this ring
                 ring_leds = [pos for pos in self.led_positions if pos.ring_number == ring_num]
@@ -136,37 +143,36 @@ class XLightsGenerator(BaseGenerator):
                 avg_y = sum(led.y for led in ring_leds) / len(ring_leds) if ring_leds else 0
                 avg_z = sum(led.z for led in ring_leds) / len(ring_leds) if ring_leds else 0
                 
+                # Use the exact logic from original Atlas v2 code
                 dc = ""
-                dc_start = ""
-                pc_end = ""
-                dc_total = ""
-                dc_end = ""
-                group_led_total += leds_in_ring
+                dcStart = ""
+                powerStart = ""
+                pcEnd = ""
+                dcTotal = ""
+                dcEnd = ""
+                groupTotal = groupTotal + leds_in_ring
                 
-                # Start of a new group
-                if group_assignment[ring_num] == current_group and group_start:
-                    dc = current_group
-                    dc_start = led_start
-                    group_start = False
-                
-                # End of the current group
-                elif group_assignment.get(ring_num + 1, self.ports + 1) != current_group:
-                    pc_end = current_group
-                    dc_end = led_start + leds_in_ring - 1
-                    dc_total = group_led_total
-                    dc_end_total += group_led_total
-                    dc_end = dc_end_total
-                    group_start = True
-                    current_group += 1
-                    group_led_total = 0
+                if group_assignment[ring_num] == group and groupStart:
+                    dc = group
+                    dcStart = led
+                    powerStart = group   
+                    groupStart = False        
+                elif group_assignment.get(ring_num+1, self.ports+1) != group:
+                    pcEnd = group
+                    dcEnd = groupStartLED + groupTotal
+                    dcTotal = groupTotal
+                    dcEndTotal = dcEndTotal + groupTotal
+                    dcEnd = dcEndTotal
+                    groupStart = True
+                    group = group + 1
+                    groupTotal = 0
                 
                 writer.writerow([
-                    ring_num, led_start, led_end, leds_in_ring,
-                    dc, dc_start, dc_end, dc_total, dc, pc_end,
+                    ring_num, led, led_end, leds_in_ring,
+                    dc, dcStart, dcEnd, dcTotal, powerStart, pcEnd,
                     f"{avg_x:.2f}", f"{avg_y:.2f}", f"{avg_z:.2f}"
                 ])
-                
-                led_start = led_end + 1
+                led = led + leds_in_ring
     
     def export_coordinates_json(self, filename: str):
         """Export LED coordinates to JSON for external visualization"""
