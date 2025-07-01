@@ -7,6 +7,7 @@ import csv
 import math
 from typing import Dict, List, Tuple
 from .base_generator import BaseGenerator, LEDPosition
+from .xlights_common import XLightsCommon
 
 
 class XLights3DGenerator(BaseGenerator):
@@ -167,70 +168,27 @@ class XLights3DGenerator(BaseGenerator):
     def write_3d_csv(self, filename: str, group_assignment: Dict[int, int]):
         """
         Write CSV output with 3D coordinate information.
+        Uses the exact logic from the original Atlas v2 code for group assignment.
         """
-        headers = [
-            "Ring", "LED Start", "LED End", "LEDs Per Ring",
-            "DataChannel", "DC Start", "DC End", "DC Total", 
-            "PC Start", "PC End", "X", "Y", "Z", "Grid Col", "Grid Row", "Grid Layer"
-        ]
+        # Define additional headers for 3D version
+        additional_headers = ["X", "Y", "Z", "Grid Col", "Grid Row", "Grid Layer"]
         
-        with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(headers)
-            
-            led_start = 1
-            current_group = 1
-            group_start = True
-            group_led_total = 0
-            dc_end_total = 0
-            
-            for ring_num in sorted(self.rings.keys()):
-                leds_in_ring = self.rings[ring_num]
-                led_end = led_start + leds_in_ring - 1
-                
-                # Get first LED in ring for coordinate example
-                ring_leds = [pos for pos in self.led_positions if pos.ring_number == ring_num]
-                if ring_leds:
-                    first_led = ring_leds[0]
-                    x, y, z = first_led.x, first_led.y, first_led.z
-                    
-                    # Calculate grid positions
-                    grid_col, grid_row, grid_layer = self.map_to_grid(x, y, z)
-                else:
-                    x = y = z = grid_col = grid_row = grid_layer = 0
-                
-                dc = ""
-                dc_start = ""
-                pc_end = ""
-                dc_total = ""
-                dc_end = ""
-                group_led_total += leds_in_ring
-                
-                # Start of a new group
-                if group_assignment[ring_num] == current_group and group_start:
-                    dc = current_group
-                    dc_start = led_start
-                    group_start = False
-                
-                # End of the current group
-                elif group_assignment.get(ring_num + 1, self.ports + 1) != current_group:
-                    pc_end = current_group
-                    dc_end = led_start + leds_in_ring - 1
-                    dc_total = group_led_total
-                    dc_end_total += group_led_total
-                    dc_end = dc_end_total
-                    group_start = True
-                    current_group += 1
-                    group_led_total = 0
-                
-                writer.writerow([
-                    ring_num, led_start, led_end, leds_in_ring,
-                    dc, dc_start, dc_end, dc_total, dc, pc_end,
-                    f"{x:.2f}", f"{y:.2f}", f"{z:.2f}",
-                    grid_col, grid_row, grid_layer
-                ])
-                
-                led_start = led_end + 1
+        # Define function to generate additional data (coordinates and grid positions)
+        def get_additional_data(ring_num: int, led_positions: List) -> List[str]:
+            x, y, z = XLightsCommon.get_first_led_coordinates(ring_num, led_positions)
+            grid_col, grid_row, grid_layer = self.map_to_grid(x, y, z)
+            return [f"{x:.2f}", f"{y:.2f}", f"{z:.2f}", str(grid_col), str(grid_row), str(grid_layer)]
+        
+        # Use common CSV writing function
+        XLightsCommon.write_csv_with_group_assignment(
+            filename=filename,
+            group_assignment=group_assignment,
+            rings=self.rings,
+            led_positions=self.led_positions,
+            ports=self.ports,
+            additional_headers=additional_headers,
+            additional_data_func=get_additional_data
+        )
     
     def export_3d_coordinates_json(self, filename: str):
         """Export LED coordinates to JSON for external visualization"""

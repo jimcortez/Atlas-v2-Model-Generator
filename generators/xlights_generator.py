@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 import csv
 from typing import Dict, List
 from .base_generator import BaseGenerator
+from .xlights_common import XLightsCommon
 
 
 class XLightsGenerator(BaseGenerator):
@@ -111,68 +112,24 @@ class XLightsGenerator(BaseGenerator):
         Write enhanced CSV output with additional coordinate information.
         Uses the exact logic from the original Atlas v2 code for group assignment.
         """
-        headers = [
-            "Ring", "LED Start", "LED End", "LEDs Per Ring",
-            "DataChannel", "DC Start", "DC End", "DC Total", 
-            "PC Start", "PC End", "Avg X", "Avg Y", "Avg Z"
-        ]
+        # Define additional headers for 2D version
+        additional_headers = ["Avg X", "Avg Y", "Avg Z"]
         
-        # Debug: Print group assignment
-        # print("Group assignment:")
-        # for ring_num in sorted(self.rings.keys()):
-        #     print(f"Ring {ring_num}: Group {group_assignment[ring_num]}")
+        # Define function to generate additional data (average coordinates)
+        def get_additional_data(ring_num: int, led_positions: List) -> List[str]:
+            avg_x, avg_y, avg_z = XLightsCommon.get_average_coordinates(ring_num, led_positions)
+            return [f"{avg_x:.2f}", f"{avg_y:.2f}", f"{avg_z:.2f}"]
         
-        with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(headers)
-            
-            led = 1
-            group = 1
-            groupStart = True
-            groupStartLED = 1
-            groupTotal = 0
-            dcEndTotal = 0
-            
-            for ring_num in sorted(self.rings.keys()):
-                leds_in_ring = self.rings[ring_num]
-                led_end = led + leds_in_ring - 1
-                
-                # Calculate average coordinates for this ring
-                ring_leds = [pos for pos in self.led_positions if pos.ring_number == ring_num]
-                avg_x = sum(led.x for led in ring_leds) / len(ring_leds) if ring_leds else 0
-                avg_y = sum(led.y for led in ring_leds) / len(ring_leds) if ring_leds else 0
-                avg_z = sum(led.z for led in ring_leds) / len(ring_leds) if ring_leds else 0
-                
-                # Use the exact logic from original Atlas v2 code
-                dc = ""
-                dcStart = ""
-                powerStart = ""
-                pcEnd = ""
-                dcTotal = ""
-                dcEnd = ""
-                groupTotal = groupTotal + leds_in_ring
-                
-                if group_assignment[ring_num] == group and groupStart:
-                    dc = group
-                    dcStart = led
-                    powerStart = group   
-                    groupStart = False        
-                elif group_assignment.get(ring_num+1, self.ports+1) != group:
-                    pcEnd = group
-                    dcEnd = groupStartLED + groupTotal
-                    dcTotal = groupTotal
-                    dcEndTotal = dcEndTotal + groupTotal
-                    dcEnd = dcEndTotal
-                    groupStart = True
-                    group = group + 1
-                    groupTotal = 0
-                
-                writer.writerow([
-                    ring_num, led, led_end, leds_in_ring,
-                    dc, dcStart, dcEnd, dcTotal, powerStart, pcEnd,
-                    f"{avg_x:.2f}", f"{avg_y:.2f}", f"{avg_z:.2f}"
-                ])
-                led = led + leds_in_ring
+        # Use common CSV writing function
+        XLightsCommon.write_csv_with_group_assignment(
+            filename=filename,
+            group_assignment=group_assignment,
+            rings=self.rings,
+            led_positions=self.led_positions,
+            ports=self.ports,
+            additional_headers=additional_headers,
+            additional_data_func=get_additional_data
+        )
     
     def export_coordinates_json(self, filename: str):
         """Export LED coordinates to JSON for external visualization"""
