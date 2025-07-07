@@ -146,9 +146,9 @@ def generate_models(config: Dict[str, Any], output_dir: str = ".",
                 # Get the actual files that were generated
                 file_extensions = []
                 if format_name == "xlights":
-                    file_extensions = [".xmodel", ".csv", "_coordinates.json"]
+                    file_extensions = [".xmodel", ".csv"]
                 elif format_name == "xlights3d":
-                    file_extensions = ["_3d.xmodel", "_3d.csv", "_3d_coordinates.json"]
+                    file_extensions = ["_3d.xmodel", "_3d.csv"]
                 elif format_name == "madmapper":
                     file_extensions = [".mmfl"]
                 
