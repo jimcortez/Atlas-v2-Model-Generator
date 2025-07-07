@@ -16,6 +16,22 @@ class XLightsGenerator(BaseGenerator):
         super().__init__(config)
         self.model_name = config['model']['name']
         self.model_version = config['model']['version']
+        
+        # Enforce xLights 2D grid size limit of 1000
+        self.max_grid_size = 1000
+        self.validated_total_size = self._validate_total_size()
+    
+    def _validate_total_size(self) -> int:
+        """
+        Validate and enforce the 1000 limit for xLights 2D grid dimensions.
+        
+        Returns:
+            Validated total_size (clamped to 1000 if necessary)
+        """
+        if self.total_size > self.max_grid_size:
+            print(f"Warning: total_size ({self.total_size}) exceeds xLights 2D limit of {self.max_grid_size}. Clamping to {self.max_grid_size}.")
+            return self.max_grid_size
+        return self.total_size
     
     def get_format_name(self) -> str:
         return "xLights"
@@ -27,12 +43,13 @@ class XLightsGenerator(BaseGenerator):
         """
         Alternative ring generation using coordinate-based positioning.
         Creates a more precise distribution based on actual spherical geometry.
+        Uses validated total_size to ensure xLights 2D grid limits are respected.
         """
         ring_leds = [pos for pos in self.led_positions if pos.ring_number == ring_num]
         ring_leds.sort(key=lambda pos: pos.position_in_ring)
         
-        # Create a sparse array representation
-        result = [""] * self.total_size
+        # Create a sparse array representation using validated size
+        result = [""] * self.validated_total_size
         
         if not ring_leds:
             return ",".join(map(str, result))
@@ -46,7 +63,7 @@ class XLightsGenerator(BaseGenerator):
             for i, led in enumerate(ring_leds[1:-1], 1):
                 # Calculate position based on angular distribution
                 angle_ratio = i / (len(ring_leds) - 1)
-                array_position = int(angle_ratio * (self.total_size - 1))
+                array_position = int(angle_ratio * (self.validated_total_size - 1))
                 result[array_position] = str(led.led_number)
         
         return ",".join(map(str, result))
@@ -65,11 +82,12 @@ class XLightsGenerator(BaseGenerator):
     def write_xml_model(self, filename: str, sphere: List[str]):
         """
         Write xLights XML model file with enhanced metadata.
+        Uses validated total_size for parm1 to ensure xLights compatibility.
         """
         # Create root element with more detailed attributes
         root = ET.Element('custommodel')
         root.set('name', f'{self.model_name} v{self.model_version}')
-        root.set('parm1', str(self.total_size))
+        root.set('parm1', str(self.validated_total_size))  # Use validated size
         root.set('parm2', str(len(self.rings)))
         root.set('Depth', '1')
         root.set('StringType', 'GRB Nodes')
@@ -88,6 +106,9 @@ class XLightsGenerator(BaseGenerator):
         metadata.set('method', 'coordinate-based')
         metadata.set('total_leds', str(len(self.led_positions)))
         metadata.set('ports', str(self.ports))
+        metadata.set('max_grid_size', str(self.max_grid_size))
+        metadata.set('original_total_size', str(self.total_size))
+        metadata.set('validated_total_size', str(self.validated_total_size))
         
         # Add coordinate information for debugging/visualization
         coords_element = ET.SubElement(root, 'coordinates')
@@ -141,7 +162,10 @@ class XLightsGenerator(BaseGenerator):
                 "version": self.model_version,
                 "total_leds": len(self.led_positions),
                 "rings": len(self.rings),
-                "ports": self.ports
+                "ports": self.ports,
+                "max_grid_size": self.max_grid_size,
+                "original_total_size": self.total_size,
+                "validated_total_size": self.validated_total_size
             },
             "leds": [
                 {
