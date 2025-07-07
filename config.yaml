@@ -15,15 +15,15 @@ rings:
   4: 82
   5: 92
   6: 100
-  7: 108
+  7: 107
   8: 114
   9: 120
-  10: 126
-  11: 139
+  10: 125
+  11: 130
   12: 134
-  13: 137
+  13: 138
   14: 141
-  15: 144
+  15: 144 #validated this and all the above
   16: 147
   17: 149
   18: 152
@@ -74,6 +74,13 @@ madmapper:
   grid_resolution: 100  # Size of the grid (width x height)
   dmx_start_channel: 1  # Starting DMX channel for the first LED
 
+# xLights 3D Configuration
+xlights3d:
+  grid_width: 50       # Width of each 2D slice
+  grid_height: 50      # Height of each 2D slice
+  grid_depth: 50       # Number of z-layers (depth)
+  sphere_radius: 100.0 # Radius for coordinate mapping
+
 # Output Configuration
 output:
   default_prefix: "atlas_v2"
@@ -85,4 +92,8 @@ output:
     madmapper:
       enabled: true
       extension: ".mmfl"
-      filename: "atlas_v2.mmfl" 
+      filename: "atlas_v2.mmfl"
+    xlights3d:
+      enabled: true
+      extension: "_3d.xmodel"
+      filename: "atlas_v2_3d.xmodel" 
