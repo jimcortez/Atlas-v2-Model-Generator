@@ -182,20 +182,38 @@ class BaseGenerator(ABC):
     def generate_group_assignment_improved(self) -> Dict[int, int]:
         """
         Generate group assignment using the exact partitioning algorithm from Atlas v2.
+        Special handling: rings 50+ are always appended to output 16 after the normal
+        balancing is complete. The balancing algorithm still uses all 16 ports for rings 1-49.
         """
-        # Get the ring values in order
-        ring_values = [self.rings[ring_num] for ring_num in sorted(self.rings.keys())]
+        # Separate rings into those that get balanced (1-49) and those that go to last output (50+)
+        rings_to_balance = {}
+        rings_for_last_output = {}
         
-        # Use the original Atlas v2 partitioning algorithm
+        for ring_num in sorted(self.rings.keys()):
+            if ring_num >= 50:
+                rings_for_last_output[ring_num] = self.rings[ring_num]
+            else:
+                rings_to_balance[ring_num] = self.rings[ring_num]
+        
+        # Get the ring values for rings that should be balanced (1-49)
+        ring_values = [rings_to_balance[ring_num] for ring_num in sorted(rings_to_balance.keys())]
+        
+        # Use the original Atlas v2 partitioning algorithm for rings 1-49 using ALL 16 ports
         groups: List[List[int]] = self.partition_list(ring_values, self.ports)
         
         # Create group assignment mapping
         group_assignment = {}
         ring = 1
+        
+        # Assign rings 1-49 to their balanced groups
         for group_idx, group in enumerate(groups, 1):  # 1-based indexing
             for ring_num in group:
                 group_assignment[ring] = group_idx
                 ring = ring + 1
+        
+        # Append rings 50+ to the last output (port 16) without changing the existing balance
+        for ring_num in sorted(rings_for_last_output.keys()):
+            group_assignment[ring_num] = self.ports  # Last port (16)
         
         return group_assignment
     
