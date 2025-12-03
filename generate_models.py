@@ -151,6 +151,8 @@ def generate_models(config: Dict[str, Any], output_dir: str = ".",
                     file_extensions = ["_3d.xmodel", "_3d.csv"]
                 elif format_name == "madmapper":
                     file_extensions = [".mmfl"]
+                elif format_name == "chromatik":
+                    file_extensions = [".lxf"]
                 
                 generated_files = [f"{prefix}{ext}" for ext in file_extensions]
                 print(f"  ✓ Successfully generated {format_name} model files:")

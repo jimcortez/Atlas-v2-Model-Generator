@@ -2,6 +2,7 @@
 *.xmodel
 *.json
 *.mmfl
+*.lxf
 .vscode
 xLights/
 

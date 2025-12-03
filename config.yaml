@@ -81,6 +81,12 @@ xlights3d:
   grid_depth: 50       # Number of z-layers (depth)
   sphere_radius: 100.0 # Radius for coordinate mapping
 
+# Chromatik Configuration
+chromatik:
+  artnet_host: "127.0.0.1"  # ArtNet destination IP address
+  artnet_start_universe: 0  # Starting ArtNet universe number
+  dmx_start_channel: 1      # Starting DMX channel for the first LED
+
 # Output Configuration
 output:
   default_prefix: "atlas_v2"
@@ -96,4 +102,8 @@ output:
     xlights3d:
       enabled: true
       extension: "_3d.xmodel"
-      filename: "atlas_v2_3d.xmodel" 
+      filename: "atlas_v2_3d.xmodel"
+    chromatik:
+      enabled: true
+      extension: ".lxf"
+      filename: "atlas_v2.lxf" 

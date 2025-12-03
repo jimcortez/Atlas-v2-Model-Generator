@@ -9,6 +9,7 @@ from .base_generator import BaseGenerator
 from .xlights_generator import XLightsGenerator
 from .madmapper_generator import MadMapperGenerator
 from .xlights3d_generator import XLights3DGenerator
+from .chromatik_generator import ChromatikGenerator
 
 
 class GeneratorFactory:
@@ -18,6 +19,7 @@ class GeneratorFactory:
         'xlights': XLightsGenerator,
         'madmapper': MadMapperGenerator,
         'xlights3d': XLights3DGenerator,
+        'chromatik': ChromatikGenerator,
     }
     
     @classmethod
