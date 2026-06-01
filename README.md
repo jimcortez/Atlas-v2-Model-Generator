@@ -1,6 +1,10 @@
+
 # Atlas v2 LED Sphere - Modular Model Generator
 
-A modular Python tool to generate LED sphere models for xLights, MadMapper, and Chromatik animation software. All configuration is managed via a single YAML file.
+A modular Python tool to generate LED sphere models using Atlas v2 for xLights, MadMapper, and Chromatik animation software.
+
+<img height="350" alt="sphere" src="https://github.com/user-attachments/assets/2e028cd7-ff66-4a29-9233-797dcc164ac3" />
+<img height="350" alt="PXL_20250710_024952339" src="https://github.com/user-attachments/assets/1dc80327-0af2-4ed4-bbd4-bc5dcbfdcec8" />
 
 ---
 
